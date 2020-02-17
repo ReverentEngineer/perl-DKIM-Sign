@@ -59,9 +59,9 @@ while (<STDIN>) {
 $dkim->CLOSE;
 if (defined $dkim->signature) {
 	unshift @output, $dkim->signature->as_string()."\n";
-	foreach (@output) {
-		print($_);
-	}
+}
+foreach (@output) {
+	print($_);
 }
 
 exit 1;
