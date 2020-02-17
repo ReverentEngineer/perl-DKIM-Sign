@@ -1,68 +1,67 @@
 #!/usr/bin/env perl
 
-use Env;
+use YAML qw(LoadFile);
 use Mail::DKIM::Signer;
 use Mail::DKIM::TextWrap;
-use Mail::Internet;
-use Mail::Address;
 use strict;
 
-my ($dkim_list) = @ARGV;
+my ($dkim_config) = @ARGV;
 
-if (not defined $dkim_list) {
-	die 'Need DKIM list';
+if (not defined $dkim_config) {
+	die 'Need DKIM config';
 }
 
-my @lines = <STDIN>;
-my @copy = @lines;
-my $msg = Mail::Internet->new(\@lines);
-my $from = $msg->head()->get('From');
-my @from_addr = Mail::Address->parse($from);
-my $domain;
+my $policyfn = sub {
+	my $dkim = shift;
+	my ($configs) = LoadFile($dkim_config);
+	my @configs = @{ $configs };
+	my $domain = $dkim->message_originator->host;
+	foreach (@configs) {
+		my %config = %$_;
+		if ($config{'domain'} eq $domain) {
+			my $algorithm = $config{'algorithm'};
+			$algorithm = 'rsa-sha1' if not defined $algorithm;
 
-# Get the domain from the from adress.
-if (scalar @from_addr == 1) {
-	$domain = $from_addr[0]->host();
-} else {
-	die 'Invalid From address.';
-}
+			my $method = $config{'method'};
+			$method = 'relaxed' if not defined $method;
 
-sub sign {
-	my ($domain, $selector, $algorithm, $method, $keyfile, $lines) = @_;
-	my $dkim = Mail::DKIM::Signer->new(
-		Algorithm => $algorithm,
-		Method => $method,
-		Domain => $domain,
-		Selector => $selector,
-		KeyFile => $keyfile
-	);
-	my @lines = @{ $lines };
-	foreach (@lines) {
-		chomp;
-		s/\015$//;
-		$dkim->PRINT("$_\015\012");
-	}
-	$dkim->CLOSE;
-	return $dkim->signature->as_string()
-}
+			my $selector = $config{'selector'};
+			$selector = 'dkim' if not defined $selector;
 
-open(dkim_domains, '<', $dkim_list) or die $!;
+			my $keyfile = $config{'keyfile'};
 
-while (<dkim_domains>) {
-	my ($dkim_domain, $selector, $algorithm, $method, $keyfile) = split ' ', $_;
-
-	if (not defined $keyfile) {
-		next;
-	}
-
-	if ($domain eq $dkim_domain) {
-		my $signature = sign($domain, $selector, $algorithm, $method, $keyfile, \@copy);
-		unshift @copy, $signature."\n";
-		foreach (@copy) {
-			print("$_");
+			$dkim->algorithm($algorithm);
+			$dkim->method($method);
+			$dkim->domain($domain);
+			$dkim->selector($selector);
+			$dkim->key_file($keyfile);
+			return 1;
 		}
-		exit 0;
+	}
+
+	return 0;
+};
+
+
+my $dkim = Mail::DKIM::Signer->new(
+	Policy => $policyfn,
+);
+
+my @output = ();
+while (<STDIN>) {
+	push @output, $_;
+	chomp;
+	s/\015$//;
+	$dkim->PRINT("$_\015\012");
+
+}
+
+$dkim->CLOSE;
+if (defined $dkim->signature) {
+	unshift @output, $dkim->signature->as_string()."\n";
+	foreach (@output) {
+		print($_);
 	}
 }
-printf("%s not found in DKIM list.\n", $domain);
+
 exit 1;
