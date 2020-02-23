@@ -63,5 +63,3 @@ if (defined $dkim->signature) {
 foreach (@output) {
 	print($_);
 }
-
-exit 1;
