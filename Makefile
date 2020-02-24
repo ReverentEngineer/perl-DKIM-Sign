@@ -2,8 +2,10 @@ define check_perl_module
 	@perl -e "use $(1);" 2> /dev/null || echo "Required perl module $(1) not installed"
 endef
 
+PREFIX := /usr/local
+
 install: deps
-	cp ./dkim_sign.pl /usr/local/bin
+	cp ./dkim_sign.pl $(PREFIX)/bin
 .PHONY: install
 	
 test: ./run_tests.sh deps
