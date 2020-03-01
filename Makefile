@@ -2,7 +2,9 @@ define check_perl_module
 	@perl -e "use $(1);" 2> /dev/null || echo "Required perl module $(1) not installed"
 endef
 
-PREFIX := /usr/local
+ifndef PREFIX
+	PREFIX := /usr/local
+endif
 SPECFILE := centos/perl-DKIM-Sign.spec
 DESTDIR := 
 
