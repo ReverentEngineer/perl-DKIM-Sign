@@ -2,6 +2,7 @@ Name:           perl-DKIM-Sign
 Version:        %{_version}
 Release:        1%{?dist}
 Summary:        A command line DKIM signer
+BuildArch:      noarch
 
 License:       MIT 
 URL:           https://github.com/ReverentEngineer/%{name}
