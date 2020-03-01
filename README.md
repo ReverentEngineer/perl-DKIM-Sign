@@ -15,7 +15,7 @@ yum install perl-YAML perl-Mail-DKIM
 
 Example usage:
 ```
-cat message | dkim_sign.pl ./config.yaml
+cat message | dkim_sign ./config.yaml
 ```
 
 # Configuration
