@@ -8,6 +8,7 @@ License:       MIT
 URL:           https://github.com/ReverentEngineer/%{name}
 Source0:       https://github.com/ReverentEngineer/%{name}/archive/v%{version}.zip
 
+BuildRequires: pandoc
 Requires:      perl-Mail-DKIM, perl-YAML
 
 %description
