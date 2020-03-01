@@ -6,7 +6,10 @@ PREFIX := /usr/local
 SPECFILE := centos/perl-DKIM-Sign.spec
 DESTDIR := 
 
-install: deps
+$(DESTDIR)$(PREFIX)/bin:
+	mkdir -p $@
+
+install: deps $(DESTDIR)$(PREFIX)/bin
 	cp ./bin/dkim_sign $(DESTDIR)$(PREFIX)/bin
 .PHONY: install
 	
