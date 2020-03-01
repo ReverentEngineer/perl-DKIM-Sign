@@ -17,12 +17,12 @@ perl-DKIM-Sign is a command line interface for signing mail developed with Postf
 
 %install
 rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
 cp %{name}-%{version}/bin/dkim_sign $RPM_BUILD_ROOT%{_bindir}/dkim_sign
 
 
 %files
-%license add-license-file-here
-%doc add-docs-here
+%license %{name}-%{version}/LICENSE
 %{_bindir}/dkim_sign
 
 
