@@ -3,6 +3,7 @@
 TEST_KEY="./test.key"
 TEST_CONFIG="./test.yaml"
 TEST_MESSAGE="./testmsg"
+BIN=./bin/dkim_sign
 
 # Setup cleanup trap
 trap "rm -f ${TEST_KEY} ${TEST_CONFIG} ${TEST_MESSAGE}" 0 1 2 3 15
@@ -34,7 +35,7 @@ This is only a test.
 
 EOM
 
-OUTPUT=$(echo "$VALID_SIGNEE" | ./dkim_sign.pl ${TEST_CONFIG})
+OUTPUT=$(echo "$VALID_SIGNEE" | ${BIN} ${TEST_CONFIG})
 
 if [[ ! $OUTPUT =~ ^DKIM-Signature ]]; then
 	echo "VALID_SIGNEE: failed"
@@ -43,7 +44,7 @@ else
 	echo "VALID_SIGNEE: passed"
 fi
 
-OUTPUT=$(echo "$INVALID_SIGNEE" | ./dkim_sign.pl ${TEST_CONFIG})
+OUTPUT=$(echo "$INVALID_SIGNEE" | ${BIN} ${TEST_CONFIG})
 
 
 if [[ $OUTPUT =~ ^DKIM-Signature ]]; then

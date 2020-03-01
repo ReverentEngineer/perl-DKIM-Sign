@@ -3,9 +3,11 @@ define check_perl_module
 endef
 
 PREFIX := /usr/local
+SPECFILE := centos/perl-DKIM-Sign.spec
+DESTDIR := 
 
 install: deps
-	cp ./dkim_sign.pl $(PREFIX)/bin
+	cp ./bin/dkim_sign $(DESTDIR)$(PREFIX)/bin
 .PHONY: install
 	
 test: ./run_tests.sh deps
@@ -16,3 +18,7 @@ deps:
 	$(call check_perl_module,"YAML")
 	$(call check_perl_module,"Mail::DKIM")
 .PHONY: deps
+
+rpm:
+	spectool -g -R $(SPECFILE)
+	rpmbuild -bb $(SPECFILE)
