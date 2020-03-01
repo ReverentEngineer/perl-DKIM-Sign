@@ -1,5 +1,5 @@
 Name:           perl-DKIM-Sign
-Version:        0.1.1
+Version:        %{_version}
 Release:        1%{?dist}
 Summary:        A command line DKIM signer
 

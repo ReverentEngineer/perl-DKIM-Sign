@@ -5,24 +5,29 @@ endef
 ifndef PREFIX
 	PREFIX := /usr/local
 endif
-SPECFILE := centos/perl-DKIM-Sign.spec
-DESTDIR := 
 
-$(DESTDIR)$(PREFIX)/bin:
+VERSION := 0.1.1
+INSTALL_PREFIX := $(DESTDIR)$(PREFIX)
+SPECFILE := centos/perl-DKIM-Sign.spec
+DIRS := bin share/man/man1
+DIRS := $(addprefix $(INSTALL_PREFIX)/,$(DIRS))
+
+$(DIRS):
 	mkdir -p $@
 
-install: deps $(DESTDIR)$(PREFIX)/bin
-	cp ./bin/dkim_sign $(DESTDIR)$(PREFIX)/bin
+install: deps $(DIRS) man
+	cp ./bin/dkim_sign $(INSTALL_PREFIX)/bin
+	cp dkim_sign.1.gz $(INSTALL_PREFIX)/share/man/man1
 .PHONY: install
 	
 test: ./run_tests.sh deps
 	./run_tests.sh
 .PHONY: test
 
-dkim_sign.1: MAN.md
-	pandoc -f markdown -s -t man $^ -o $@	
+dkim_sign.1.gz: MAN.md
+	pandoc -f markdown -s -t man $^ | gzip > $@
 
-man: dkim_sign.1
+man: dkim_sign.1.gz
 .PHONY: man
 
 deps:
@@ -31,10 +36,10 @@ deps:
 .PHONY: deps
 
 rpm:
-	spectool -g -R $(SPECFILE)
-	rpmbuild -bb $(SPECFILE)
+	spectool -g -R --define '_version $(VERSION)' $(SPECFILE)
+	rpmbuild -bb --define '_version $(VERSION)' $(SPECFILE)
 .PHONY: rpm
 
 clean:
-	rm ./dkim_sign.1
+	rm -f ./dkim_sign.1.gz
 .PHONY: clean
