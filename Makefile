@@ -19,6 +19,12 @@ test: ./run_tests.sh deps
 	./run_tests.sh
 .PHONY: test
 
+dkim_sign.1: MAN.md
+	pandoc -f markdown -s -t man $^ -o $@	
+
+man: dkim_sign.1
+.PHONY: man
+
 deps:
 	$(call check_perl_module,"YAML")
 	$(call check_perl_module,"Mail::DKIM")
@@ -27,3 +33,8 @@ deps:
 rpm:
 	spectool -g -R $(SPECFILE)
 	rpmbuild -bb $(SPECFILE)
+.PHONY: rpm
+
+clean:
+	rm ./dkim_sign.1
+.PHONY: clean
